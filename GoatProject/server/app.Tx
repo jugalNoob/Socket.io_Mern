@@ -1,9 +1,14 @@
+
+// ------------- First Logic in Notfie ::::::::::::::::::::::::::::
+
+
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const app = express();
 const port = process.env.PORT || 9000;
-const notify = require('./Notification/notify'); // Import the notify module
+let connectedUsers = require('./notify'); // Import the initial value
 
 const server = http.createServer(app);
 
@@ -24,12 +29,13 @@ const io = socketIo(server, {
 // Socket.IO Events
 io.on('connection', (socket) => {
   // Increment connected users
-  notify.increment();
+  connectedUsers++;
   console.log(`New user connected: ${socket.id}`);
-  console.log(`Total connected users: ${notify.connectedUsers}`);
+  console.log(`Total connected users: ${connectedUsers}`);
 
+  
   // Notify all clients of updated user count
-  io.emit('userCount', notify.connectedUsers);
+  io.emit('userCount', connectedUsers);
 
   // Handle chat messages
   socket.on('chat', (msg) => {
@@ -39,18 +45,13 @@ io.on('connection', (socket) => {
 
   // Handle user disconnection
   socket.on('disconnect', () => {
-    notify.decrement();
+    connectedUsers--;
     console.log(`User disconnected with ID: ${socket.id}`);
-    console.log(`Total connected users: ${notify.connectedUsers}`);
+    console.log(`Total connected users: ${connectedUsers}`);
 
     // Notify all clients of updated user count
-    io.emit('userCount', notify.connectedUsers);
+    io.emit('userCount', connectedUsers);
   });
-});
-
-// Endpoint to fetch logs (Optional)
-app.get('/logs', (req, res) => {
-  res.json({ logs: notify.getLogs() });
 });
 
 // Start the server
