@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   // Handle chat messages
   socket.on('chat', (msg) => {
     console.log(`Message received: ${msg}`);
-    io.emit('chat', `Server received: ${msg}`);
+    socket.broadcast.emit('chat', `Server received: ${msg}`);
   });
 
   // Handle user disconnection
